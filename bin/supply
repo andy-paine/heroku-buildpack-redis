@@ -12,6 +12,15 @@ unset GIT_DIR
 # Directories
 BUILD_DIR=$1
 BUILDPACK_DIR="$(dirname $(dirname $0))"
+echo "-----> Downloading stunnel"
+curl -sSL https://www.stunnel.org/downloads/stunnel-5.55.tar.gz | tar -xvf
+cd stunnel-5.55
+
+
+echo "-----> Building stunnel"
+./configure
+make
+make install
 
 echo "-----> Moving the configuration generation script into app/bin"
 mkdir -p $BUILD_DIR/bin
