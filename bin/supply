@@ -12,8 +12,6 @@ unset GIT_DIR
 # Directories
 BUILD_DIR=$1
 BUILDPACK_DIR="$(dirname $(dirname $0))"
-echo "-----> Installing stunnel"
-apt-get install stunnel4
 
 echo "-----> Moving the configuration generation script into app/bin"
 mkdir -p $BUILD_DIR/bin
