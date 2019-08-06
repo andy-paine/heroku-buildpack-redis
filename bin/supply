@@ -21,6 +21,9 @@ echo "-----> Building stunnel"
 ./configure --prefix=/app
 make
 make install
+mkdir -p $BUILD_DIR/bin
+cp "/app/bin/stunnel" $BUILD_DIR/bin/stunnel
+chmod +x $BUILD_DIR/bin/stunnel
 
 echo "-----> Moving the configuration generation script into app/bin"
 mkdir -p $BUILD_DIR/bin
