@@ -3,7 +3,7 @@
 
 # Configure environment
 set -e            # fail fast
-set -o pipefail   # don't ignore exit codes when piping output
+set -o pipefail   # dont ignore exit codes when piping output
 # set -x            # enable debugging
 
 # Clean up leaking environment
@@ -12,14 +12,12 @@ unset GIT_DIR
 # Directories
 BUILD_DIR=$1
 BUILDPACK_DIR="$(dirname $(dirname $0))"
+echo "-----> Installing stunnel"
+apt-get install stunnel4
 
 echo "-----> Moving the configuration generation script into app/bin"
 mkdir -p $BUILD_DIR/bin
-if [ "$STACK" == "heroku-18" ]; then
-  cp "$BUILDPACK_DIR/bin/stunnel-conf.sh" $BUILD_DIR/bin/stunnel-conf.sh
-else
-  cp "$BUILDPACK_DIR/bin/legacy-stunnel-conf.sh" $BUILD_DIR/bin/stunnel-conf.sh
-fi
+cp "$BUILDPACK_DIR/bin/stunnel-conf.sh" $BUILD_DIR/bin/stunnel-conf.sh
 chmod +x $BUILD_DIR/bin/stunnel-conf.sh
 
 echo "-----> Moving the start-stunnel script into app/bin"
