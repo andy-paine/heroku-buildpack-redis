@@ -13,7 +13,7 @@ unset GIT_DIR
 BUILD_DIR=$1
 BUILDPACK_DIR="$(dirname $(dirname $0))"
 echo "-----> Downloading stunnel"
-curl -sSL https://www.stunnel.org/downloads/stunnel-5.55.tar.gz | tar -xvf
+curl -sSL https://www.stunnel.org/downloads/stunnel-5.55.tar.gz | tar zx
 cd stunnel-5.55
 
 
