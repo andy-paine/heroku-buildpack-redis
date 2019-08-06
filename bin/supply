@@ -18,11 +18,9 @@ cd stunnel-5.55
 
 
 echo "-----> Building stunnel"
-./configure
+./configure --prefix=/app
 make
 make install
-cp "stunnel" $BUILD_DIR/bin/
-chmod +x $BUILD_DIR/bin/stunnel
 
 echo "-----> Moving the configuration generation script into app/bin"
 mkdir -p $BUILD_DIR/bin
