@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-URLS=${REDIS_STUNNEL_URLS:-REDIS_URL `compgen -v HEROKU_REDIS`}
-n=1
-
 mkdir -p /app/vendor/stunnel/var/run/stunnel/
 
 cat > /app/vendor/stunnel/stunnel.conf << EOFEOF
@@ -16,30 +13,24 @@ ciphers = HIGH:!ADH:!AECDH:!LOW:!EXP:!MD5:!3DES:!SRP:!PSK:@STRENGTH
 debug = ${STUNNEL_LOGLEVEL:-notice}
 EOFEOF
 
-for URL in $URLS
-do
-  eval URL_VALUE=\$$URL
-  PARTS=$(echo $URL_VALUE | perl -lne 'print "$1 $2 $3 $4 $5 $6 $7" if /^([^:]+):\/\/([^:]+):([^@]+)@(.*?):(.*?)(\/(.*?)(\\?.*))?$/')
-  URI=( $PARTS )
-  URI_SCHEME=${URI[0]}
-  URI_USER=${URI[1]}
-  URI_PASS=${URI[2]}
-  URI_HOST=${URI[3]}
-  URI_PORT=${URI[4]}
-  STUNNEL_PORT=$((URI_PORT + 1))
+REDIS_JSON="$(echo "$VCAP_SERVICES" | jq .redis[0].credentials)"
 
-  echo "Setting ${URL}_STUNNEL config var"
-  export ${URL}_STUNNEL=$URI_SCHEME://$URI_USER:$URI_PASS@127.0.0.1:637${n}
+URI_SCHEME=rediss
+URI_USER=x
+URI_HOST="$(echo "$REDIS_JSON" | jq -r .host)"
+URI_PASSWORD="$(echo "$REDIS_JSON" | jq -r .password)"
+URI_PORT="$(echo "$REDIS_JSON" | jq -r .port)"
 
-  cat >> /app/vendor/stunnel/stunnel.conf << EOFEOF
-[$URL]
+echo $URI_HOST
+echo "Setting REDIS_STUNNEL config var to $URI_SCHEME://$URI_USER:$URI_PASS@127.0.0.1:6379"
+export REDIS_STUNNEL_URI=$URI_SCHEME://$URI_USER:$URI_PASS@127.0.0.1:URI_PORT
+
+cat >> /app/vendor/stunnel/stunnel.conf << EOFEOF
+[redis]
 client = yes
-accept = 127.0.0.1:637${n}
-connect = $URI_HOST:$STUNNEL_PORT
+accept = 127.0.0.1:$URI_PORT
+connect = $URI_HOST:6379
 retry = ${STUNNEL_CONNECTION_RETRY:-"no"}
 EOFEOF
-
-  let "n += 1"
-done
 
 chmod go-rwx /app/vendor/stunnel/*
